@@ -30,6 +30,12 @@ struct Customer
     int index;
 };
 
+struct QuantityUpdate
+{
+    int update;
+    int quantity;
+};
+
 void printProduct(struct Product p)
 {
     printf("- - - - - - - - - - - - - -\n");
@@ -44,13 +50,29 @@ void printCustomer(struct Customer c)
     printf(" - - - - - - - - - - - - - \n");
     //in below for loop had to add index to customer struct to keep track of
     for (int i = 0; i < c.index; i++)
-    {
+    {   
         printProduct(c.shoppingList[i].product);
+        printf("\nproduct=%s\n",c.shoppingList[i].product.name);
         printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
         double cost = c.shoppingList[i].product.price * c.shoppingList[i].quantity;
         printf("The cost to %s will be %.2f\n", c.name, cost);
     };
 }
+
+// void summariseCustomerPurchase(struct Customer c)
+// {
+//     printf("- - - - - - - - - - - - - -\n");
+//     printf("CUSTOMER NAME: %s \nCUSTOMER BUDGET: %.2f \n", c.name, c.budget);
+//     printf(" - - - - - - - - - - - - - \n");
+    
+//     for (int i = 0; i < c.index; i++)
+//     {
+//         printProduct(c.shoppingList[i].product);
+//         printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
+//         double cost = c.shoppingList[i].product.price * c.shoppingList[i].quantity;
+//         printf("The cost to %s will be %.2f\n", c.name, cost);
+//     };
+// }
 
 struct Customer createCustomerOrder(char *file_loc)
 {
@@ -84,10 +106,10 @@ struct Customer createCustomerOrder(char *file_loc)
     double total = atof(t); //convert string to double
     cust.budget = total;
 
-    printf("Name from file %s \n", cust_name);
-    printf("Budget from file %.2f \n", total);
+    // printf("Name from file %s \n", cust_name);
+    // printf("Budget from file %.2f \n", total);
 
-    printf("Budget(cash) from cust struct %.2f\n", cust.budget);
+    // printf("Budget(cash) from cust struct %.2f\n", cust.budget);
 
     while ((read = getline(&line, &len, fp)) != -1)
     {
@@ -104,8 +126,8 @@ struct Customer createCustomerOrder(char *file_loc)
         struct Product productDetail = {name, 0.0};
         struct ProductStock stockItem = {productDetail, quantity};
         cust.shoppingList[cust.index++] = stockItem;
-        printf("STRUCT NAME OF PRODUCT %s QUANT %.2f\n", stockItem.product.name, stockItem.product.price);
-        printf("NAME OF PRODUCT %s QUANT %d\n", name, quantity);
+        // printf("STRUCT NAME OF PRODUCT %s QUANT %d\n", stockItem.product.name, stockItem.quantity);
+        // printf("NAME OF PRODUCT %s QUANT %d\n", name, quantity);
     };
     return cust;
 }
@@ -133,14 +155,14 @@ struct Shop createAndStockShop()
     //printf("\n***2\n");
     char *t = strtok(line, ",");
     double total = atof(t);
-    printf("Budget from file %.2f \n", total);
+    // printf("Budget from file %.2f \n", total);
     shop.cash = total;
-    printf("Budget(cash) from shop struct %.2f\n", shop.cash);
+    // printf("Budget(cash) from shop struct %.2f\n", shop.cash);
 
     while ((read = getline(&line, &len, fp)) != -1)
     {
         //printf("%s - is line\n", line);
-        printf(line);
+        // printf(line);
 
         // printf(len);
         char *n = strtok(line, ",");
@@ -154,7 +176,7 @@ struct Shop createAndStockShop()
         struct Product product = {name, price};
         struct ProductStock stockItem = {product, quantity};
         shop.stock[shop.index++] = stockItem;
-        printf("NAME OF PRODUCT %s PRICE %.2f QUANT %d\n", name, price, quantity);
+        // printf("NAME OF PRODUCT %s PRICE %.2f QUANT %d\n", name, price, quantity);
     };
     return shop;
 };
@@ -178,30 +200,22 @@ int check_stock(struct Shop * s, char * name, int quantity){
         {
             if (s->stock[i].quantity >= quantity)
             {
-                return 0;
+                return quantity;
             }
             else
             {
                 //print message to let customer know there is not enough quantity in stock of a particular product
-                printf("Not enough stock of %s", s->stock[i].product.name);
-                return 1;
+                printf("Not enough stock of %s, changing quantity to match what shop has in stock - %d", s->stock[i].product.name, s->stock[i].quantity);
+                return s->stock[i].quantity;
             }
         }
     }
 }
 
-double find_price(struct Shop s, char *name)
-{
-    for (int i = 0; i < s.index; i++)
-    {
-        if (strcmp(name, s.stock[i].product.name) == 0)
-        {
-            return s.stock[i].product.price;
-        }
-    }
-}
 
-double find_price_p(struct Shop * s, char *name)
+//find_price, looks for product name in Shop struct
+//returns orice of product
+double find_price(struct Shop * s, char *name)
 {
     for (int i = 0; i < s->index; i++)
     {
@@ -212,10 +226,10 @@ double find_price_p(struct Shop * s, char *name)
     }
 }
 
+//update_shop, looks for product by name and reduces quantity in stock
+//returns nothing, acts on Shop stuct in-place
 void update_shop(struct Shop * s, char *name, int quantity_removed)
 {
-    //update shop cash with amount paid by customer
-    //s->cash += cash_in;
     //loop through shop index to remove productStock quantity that customer is taking
     for (int i = 0; i < s->index; i++)
     {
@@ -228,48 +242,46 @@ void update_shop(struct Shop * s, char *name, int quantity_removed)
     }
 }
 
+//fulfill_order takes in pointer arguments for struct for Shop and struct for Customer
+//checks Shop struct for requested products and corrects Customer struct with correct quantities if too many requested
+//if customer has enough in their budget, order is placed, with shop quantities in stock updated and shop cash increased
+//updates all structs in-place
 void fulfill_order(struct Shop * s, struct Customer * cust)
 {
     double order_total = 0.0;
 
-    //printShop(myShop);
-    int notenoughstock = 0;
-    int insufficientfunds = 0;
-
+    printf("\n\nHello %s, I'll now start processing your order!", cust->name);
+    printf("\n===================================================================\n");
     //Loop through customer order and determine if enough quantity and enough money
+    //if requesting too much quantity, update the order to suit what shop has (even if shop has 0 quantity)
     for (int i = 0; i < cust->index; i++)
     {
         struct Product p = cust->shoppingList[i].product;
-        double price = find_price_p(s, p.name);
-        int quantity = cust->shoppingList[i].quantity;
-        notenoughstock += check_stock(s,p.name,quantity);
-        order_total = order_total + (price * quantity);
+        double price = find_price(s, p.name);
+        //checked_quantity stores the quantity returned from check_stock, which is either the original quantity requested (if in-stock) or whatever stock the shop has
+        int checked_quantity = check_stock(s,p.name,cust->shoppingList[i].quantity);
+        cust->shoppingList[i].quantity = checked_quantity;
+        //order_total will be what is subtracted from customer budget and added to shop cash
+        order_total = order_total + (price * checked_quantity);
     }
-    //if check_stock never returns a 1
-    if (notenoughstock > 0){
-        printf("Sorry there was not enough stock to make your order please try again.");
+    //Next check that customer has enough money to pay for their order
+    if (order_total > cust->budget)
+    {
+        printf("\n===================================================================\n");
+        printf("You don't have enough money, my apologies, please revise your order and try again.");
     }
-    //else there was sufficient stock across every product requested
     else
     {
-        //Next check that customer has enough money to pay for their order
-        if (order_total > cust->budget)
+        //Now Loop back through customer order and update the shop inventory as order is determined to be fulfillable
+        printf("\n===================================================================\n");
+        printf("Thank you for your custom, that will be %.2f total please.", order_total);
+        for (int i = 0; i < cust->index; i++)
         {
-            printf("You don't have enough money, my apologies, please revise your order and try again.");
+            struct Product p = cust->shoppingList[i].product;
+            int quantity = cust->shoppingList[i].quantity;
+            update_shop(s,p.name,quantity);
         }
-        else
-        {
-            //Now Loop back through customer order and update the shop inventory as order is determined to be fulfillable
-            for (int i = 0; i < cust->index; i++)
-            {
-                struct Product p = cust->shoppingList[i].product;
-                int quantity = cust->shoppingList[i].quantity;
-                update_shop(s,p.name,quantity);
-            }
-            printf("Shop balance before = %.2f\n", s->cash);
-            s->cash += order_total;
-            printf("Shop Balance After = %.2f\n", s->cash);
-        }
+        s->cash += order_total;
     }
 }
 
@@ -281,9 +293,22 @@ int main(void)
     struct Shop myShop = createAndStockShop();
     //printShop(myShop);
 
-    struct Customer cust = createCustomerOrder("Customer Orders\\customer_order_a.csv");
+    struct Customer a = createCustomerOrder("Customer Orders\\customer_order_a.csv");
+    struct Customer b = createCustomerOrder("Customer Orders\\customer_order_b.csv");
 
-    fulfill_order(&myShop,&cust);
+    printf("Start Customer DDDDDDDD");
+    struct Customer c = createCustomerOrder("Customer Orders\\customer_order_c.csv");
+    printCustomer(c);
+    fulfill_order(&myShop,&a);
+    // //summariseCustomerPurchase(a);
+    printShop(myShop);
+    fulfill_order(&myShop,&b);
+    printShop(myShop);
+    // //summariseCustomerPurchase(b);
+    // printCustomer(d);
+    fulfill_order(&myShop,&c);
+    printShop(myShop);
+    //summariseCustomerPurchase(c);
     // double order_total = 0.0;
 
     // //printShop(myShop);
@@ -325,7 +350,7 @@ int main(void)
     //         printf("Shop Balance After = %.2f\n", myShop.cash);
     //     }
     // }
-    printShop(myShop);
+    //printShop(myShop);
     //printShop(myShop);
     //printf(a.name);
 
