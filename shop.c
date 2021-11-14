@@ -76,11 +76,9 @@ void printCustomer(struct Customer c)
 
 struct Customer createCustomerOrder(char *file_loc)
 {
-
-    //printf(file_loc);
-    //printf("See me");
     struct Customer cust;
-    printf("cust index %d",cust.index);
+    cust.index=0;//set default index value
+    //printf("cust index %d",cust.index);
     FILE *fp;
     char *line = NULL;
     size_t len = 0;
@@ -92,7 +90,6 @@ struct Customer createCustomerOrder(char *file_loc)
         printf("file not found!");
         exit(EXIT_FAILURE);
     }
-
     //get the first line of csv file, should be single numeric value representing shop's balance
     getline(&line, &len, fp);
 
@@ -111,7 +108,7 @@ struct Customer createCustomerOrder(char *file_loc)
     // printf("Budget from file %.2f \n", total);
 
     // printf("Budget(cash) from cust struct %.2f\n", cust.budget);
-    printf("cust index %d",cust.index);
+    //printf("cust index %d",cust.index);
     while ((read = getline(&line, &len, fp)) != -1)
     {
         //printf("%s - is line\n", line);
@@ -126,9 +123,7 @@ struct Customer createCustomerOrder(char *file_loc)
         //struct Product product = {name,price};
         struct Product productDetail = {name, 0.0};
         struct ProductStock stockItem = {productDetail, quantity};
-        printf("cust index %d",cust.index);
         cust.shoppingList[cust.index++] = stockItem;
-        printf("cust index %d",cust.index);
         // printf("STRUCT NAME OF PRODUCT %s QUANT %d\n", stockItem.product.name, stockItem.quantity);
         // printf("NAME OF PRODUCT %s QUANT %d\n", name, quantity);
     };
@@ -178,8 +173,7 @@ struct Customer createLiveCustomerOrder()
         struct ProductStock stockItem;
         stockItem.product=productDetail;
         stockItem.quantity=quantity;
-        printf("%s, %lf, %d\n\n", productDetail.name, productDetail.price, quantity );
-        printf("\n***********************************************************\n");
+        //printf("%s, %lf, %d\n\n", productDetail.name, productDetail.price, quantity );
         cust.shoppingList[cust.index++] = stockItem;
         printf("Enter name of product or 0 to stop \n");
         //ensure no \n to mess up fgets
@@ -193,9 +187,9 @@ struct Customer createLiveCustomerOrder()
             product_choice[len-1]='\0';
         }
     }
-    printf("cust.index - %d", cust.index);
-    printf("index 0 - \n%s\n\n",cust.shoppingList[0].product.name);
-    printf("index 1 - \n%s\n\n",cust.shoppingList[1].product.name);
+    //printf("cust.index - %d", cust.index);
+    //printf("index 0 - \n%s\n\n",cust.shoppingList[0].product.name);
+    //printf("index 1 - \n%s\n\n",cust.shoppingList[1].product.name);
     return cust;
 }
 
@@ -250,12 +244,14 @@ struct Shop createAndStockShop()
 
 void printShop(struct Shop s)
 {
-    printf("How much moneys? %f", s.cash);
+    printf("\n|||-----=====SHOP DETAILS=====-----|||\n\n");
+    printf("Shop balance - %.2f\n", s.cash);
     for (int i = 0; i < s.index; i++)
     {
         printProduct(s.stock[i].product);
         printf("The shop has %d of the above\n", s.stock[i].quantity);
     };
+    printf("\n|||-----=====SHOP DETAILS=====-----|||\n\n");
 };
 
 //check_stock checks for product name and then returns 0 (true) when product has enough quantity to meet customer order
@@ -367,12 +363,14 @@ int main(void)
     //printShop(myShop);
 
     int choice = -1;
+    printShop(myShop);
 
 	while (choice != 0){
-		fflush(stdin);
-		printf("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(0) Exit Shop\n");
+		//fflush(stdin);
+        
+		printf("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n");
 		scanf("%d", &choice);
-
+        getchar();
 		if (choice == 1)
 		{
             struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_a.csv");
@@ -386,13 +384,14 @@ int main(void)
 		} else if (choice == 3){
             struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_c.csv");
             fulfill_order(&myShop,&custom_order);
-		} else if (choice == 4){
+		}  else if (choice == 4){
             struct Customer custom_order = createLiveCustomerOrder();
-            printf("\n%f",custom_order.budget);
-            printf("\nAAA %d", custom_order.shoppingList[0].product.name);
-            printf("\nBBB %d", custom_order.shoppingList[0].quantity);
             fulfill_order(&myShop,&custom_order);
         }
+        else if (choice == 5){
+            printf("Back at shop");
+            printShop(myShop);
+        }
 	}
-	printf("Buh bye");
+	printf("Thank you and goodbye");
 }
