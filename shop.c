@@ -30,12 +30,6 @@ struct Customer
     int index;
 };
 
-struct QuantityUpdate
-{
-    int update;
-    int quantity;
-};
-
 void printProduct(struct Product p)
 {
     printf("- - - - - - - - - - - - - -\n");
