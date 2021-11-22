@@ -26,22 +26,41 @@ class Customer:
     shopping_list:List[ProductStock]
 
 def printProduct(p):
+    '''
+        printProduct - prints name and price of a product dataclass
+        parameters:
+        p (dataclass) - product dataclass
+        returns:
+        N/A, just prints details from the product dataclass
+    '''
     print("- - - - - - - - - - - - - -\n")
     print(f"PRODUCT NAME: {p.name}\nPRODUCT PRICE: {p.price}\n")
     print("- - - - - - - - - - - - - \n")
 
 def printShop(s):
+    '''
+        printShop - prints details for items in a shop
+        parameters:
+        s (dataclass) - shop dataclass
+        returns:
+        N/A, just prints details from the shop dataclass.
+        Calls on printProduct function for each product in stock.
+    '''
     print("\n|||-----=====SHOP DETAILS=====-----|||\n\n")
     print(f"Shop balance - {s.cash:.2f}\n")
-    # for (int i = 0; i < s.index; i++)
-    #     printProduct(s.stock[i].product)
-    #     printf("The shop has %d of the above\n", s.stock[i].quantity)
     for i in s.stock:
         printProduct(i.product)
         print(f"The shop has {i.quantity} of the above\n")
     print("\n|||-----=====SHOP DETAILS=====-----|||\n\n")
 
 def createAndStockShop(shop_csv):
+    '''
+        createAndStockShop - creates a shop dataclass, taking input from a csv
+        parameters:
+        shop_csv (string) - file path to csv representing shop
+        returns:
+        shop dataclass after populating data
+    '''
     shop = Shop(cash=0,stock=[]) #Initialise Shop dataclass with default values, for cash and stock
 
     with open(shop_csv, "r") as csv_file:
@@ -55,6 +74,13 @@ def createAndStockShop(shop_csv):
     return shop
 
 def createCustomerOrder(customer_csv):
+    '''
+        createCustomerOrder - creates a customer dataclass, taking input from a csv
+        parameters:
+        customer_csv (string) - file path to csv representing a customer
+        returns:
+        customer dataclass after populating data
+    '''
     customer = Customer(name="",budget=0,shopping_list=[]) #Initialise Shop dataclass with default values, for cash and stock
 
     with open(customer_csv, "r") as csv_file:
