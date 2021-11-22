@@ -25,13 +25,29 @@ class Customer:
     budget:float
     shopping_list:List[ProductStock]
 
+def printProduct(p):
+    print("- - - - - - - - - - - - - -\n")
+    print(f"PRODUCT NAME: {p.name}\nPRODUCT PRICE: {p.price}\n")
+    print("- - - - - - - - - - - - - \n")
+
+def printShop(s):
+    print("\n|||-----=====SHOP DETAILS=====-----|||\n\n")
+    print(f"Shop balance - {s.cash:.2f}\n")
+    # for (int i = 0; i < s.index; i++)
+    #     printProduct(s.stock[i].product)
+    #     printf("The shop has %d of the above\n", s.stock[i].quantity)
+    for i in s.stock:
+        printProduct(i.product)
+        print(f"The shop has {i.quantity} of the above\n")
+    print("\n|||-----=====SHOP DETAILS=====-----|||\n\n")
+
 def createAndStockShop(shop_csv):
     shop = Shop(cash=0,stock=[]) #Initialise Shop dataclass with default values, for cash and stock
 
     with open(shop_csv, "r") as csv_file:
         csv_reader = csv.reader(csv_file,delimiter=',')
         cash = next(csv_reader)[0] #shop's cash is stored in first row so using next() to grab first line from csv_reader
-        shop.cash = cash #set shop's cash
+        shop.cash = float(cash) #set shop's cash
         for row in csv_reader:
             product = Product(name=row[0], price=row[1]) #set product details
             product_stock = ProductStock(product=product,quantity=row[2]) #set product stock details
@@ -53,7 +69,8 @@ def createCustomerOrder(customer_csv):
 
 if __name__ == '__main__':
     shop = createAndStockShop('Shop Stock\\stock.csv')
-    customer = createCustomerOrder('Customer Orders\\customer_order_a.csv')
+    printShop(shop)
+    #customer = createCustomerOrder('Customer Orders\\customer_order_a.csv')
     # print("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n")
     # selection = ''
     # while selection != "0":
