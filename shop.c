@@ -53,31 +53,14 @@ void printCustomer(struct Customer c)
     };
 }
 
-// void summariseCustomerPurchase(struct Customer c)
-// {
-//     printf("- - - - - - - - - - - - - -\n");
-//     printf("CUSTOMER NAME: %s \nCUSTOMER BUDGET: %.2f \n", c.name, c.budget);
-//     printf(" - - - - - - - - - - - - - \n");
-    
-//     for (int i = 0; i < c.index; i++)
-//     {
-//         printProduct(c.shoppingList[i].product);
-//         printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
-//         double cost = c.shoppingList[i].product.price * c.shoppingList[i].quantity;
-//         printf("The cost to %s will be %.2f\n", c.name, cost);
-//     };
-// }
-
 struct Customer createCustomerOrder(char *file_loc)
 {
     struct Customer cust;
     cust.index=0;//set default index value
-    //printf("cust index %d",cust.index);
     FILE *fp;
     char *line = NULL;
     size_t len = 0;
     size_t read;
-    //fp=fopen(file_loc,"r");
     fp = fopen(file_loc, "r");
     if (fp == NULL)
     {
@@ -98,28 +81,17 @@ struct Customer createCustomerOrder(char *file_loc)
     double total = atof(t); //convert string to double
     cust.budget = total;
 
-    // printf("Name from file %s \n", cust_name);
-    // printf("Budget from file %.2f \n", total);
-
-    // printf("Budget(cash) from cust struct %.2f\n", cust.budget);
-    //printf("cust index %d",cust.index);
     while ((read = getline(&line, &len, fp)) != -1)
     {
-        //printf("%s - is line\n", line);
-        //printf(line);
-        // printf(len);
         char *n = strtok(line, ",");
         char *q = strtok(NULL, ",");
         char *name = malloc(sizeof(char) * 50);
         strcpy(name, n);
         int quantity = atoi(q);
 
-        //struct Product product = {name,price};
         struct Product productDetail = {name, 0.0};
         struct ProductStock stockItem = {productDetail, quantity};
         cust.shoppingList[cust.index++] = stockItem;
-        // printf("STRUCT NAME OF PRODUCT %s QUANT %d\n", stockItem.product.name, stockItem.quantity);
-        // printf("NAME OF PRODUCT %s QUANT %d\n", name, quantity);
     };
     return cust;
 }
@@ -134,21 +106,18 @@ struct Customer createLiveCustomerOrder()
     char * cust_name = malloc(sizeof(char) * 50);
     scanf("%s", cust_name);
     cust.name = cust_name;
-    // printf("%s", cust_name);
 
     double cust_budget;
     printf("Please enter your budget: ");
     scanf("%lf", &cust_budget);
     cust.budget = cust_budget;
-    // printf("%lf", cust_budget);
 
     char * product_choice = malloc(sizeof(char) * 50);
     char * product_name = malloc(sizeof(char) * 50);
     printf("\nEnter name of product or 0 to stop \n");
-    //fflush(stdin);
     getchar(); //clear newline left over from scanf
     fgets(product_choice,50, stdin);
-    
+
     int len=strlen(product_choice); //get len of product_choice
     //if product_choice ends in '\n' new line replace
     if(product_choice[len-1]=='\n'){
@@ -167,7 +136,6 @@ struct Customer createLiveCustomerOrder()
         struct ProductStock stockItem;
         stockItem.product=productDetail;
         stockItem.quantity=quantity;
-        //printf("%s, %lf, %d\n\n", productDetail.name, productDetail.price, quantity );
         cust.shoppingList[cust.index++] = stockItem;
         printf("Enter name of product or 0 to stop \n");
         //ensure no \n to mess up fgets
@@ -181,9 +149,6 @@ struct Customer createLiveCustomerOrder()
             product_choice[len-1]='\0';
         }
     }
-    //printf("cust.index - %d", cust.index);
-    //printf("index 0 - \n%s\n\n",cust.shoppingList[0].product.name);
-    //printf("index 1 - \n%s\n\n",cust.shoppingList[1].product.name);
     return cust;
 }
 
@@ -194,7 +159,6 @@ struct Shop createAndStockShop()
     char *line = NULL;
     size_t len = 0;
     size_t read;
-    //printf("YOO");
     fp = fopen("Shop Stock\\stock.csv", "r");
     if (fp == NULL)
     {
@@ -204,22 +168,12 @@ struct Shop createAndStockShop()
 
     //get the first line of csv file, should be single numeric value representing shop's balance
     getline(&line, &len, fp);
-    //puts(line);
-    //printf("***1\n");
-    printf(line);
-    //printf("\n***2\n");
     char *t = strtok(line, ",");
     double total = atof(t);
-    // printf("Budget from file %.2f \n", total);
     shop.cash = total;
-    // printf("Budget(cash) from shop struct %.2f\n", shop.cash);
 
     while ((read = getline(&line, &len, fp)) != -1)
     {
-        //printf("%s - is line\n", line);
-        // printf(line);
-
-        // printf(len);
         char *n = strtok(line, ",");
         char *p = strtok(NULL, ",");
         char *q = strtok(NULL, ",");
@@ -263,7 +217,6 @@ int check_stock(struct Shop * s, char * name, int quantity){
             else
             {
                 //print message to let customer know there is not enough quantity in stock of a particular product
-                //printf("Not enough stock of %s, changing quantity to match what shop has in stock - %d\n", s->stock[i].product.name, s->stock[i].quantity);
                 return s->stock[i].quantity;
             }
         }
@@ -295,9 +248,7 @@ void update_shop(struct Shop * s, char *name, int quantity_removed)
     {
         if (strcmp(name, s->stock[i].product.name) == 0)
         {
-            //printf("%d - %d\n\n",s->stock[i].quantity,quantity_removed);
             s->stock[i].quantity = s->stock[i].quantity - quantity_removed;
-            //printf("%d\n\n",s->stock[i].quantity);
         }
     }
 }
@@ -344,33 +295,27 @@ void fulfill_order(struct Shop * s, struct Customer * cust)
             int quantity = cust->shoppingList[i].quantity;
             update_shop(s,p.name,quantity);
         }
+        //update shop cash
         s->cash += order_total;
+        //update customer's budget
+        cust->budget -= order_total;
     }
 }
 
 int main(void)
 {
-    // printf("The shop has %d of the product %s\n", bruStock.quantity, bruStock.product.name);
-    //TODO Need to handle partially empty first line, basically done but recheck
-    //TODO same with Customer to get their input, basically done now too
     struct Shop myShop = createAndStockShop();
-    //printShop(myShop);
 
     int choice = -1;
     printShop(myShop);
 
 	while (choice != 0){
-		//fflush(stdin);
-        
 		printf("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n");
 		scanf("%d", &choice);
         getchar();
 		if (choice == 1)
 		{
             struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_a.csv");
-            // printf("\n%f",custom_order.budget);
-            // printf("\nAAA %s", custom_order.shoppingList[1].product.name);
-            // printf("\nBBB%s", custom_order.shoppingList[0].product.name);
             fulfill_order(&myShop,&custom_order);
 		} else if (choice == 2){
             struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_b.csv");
