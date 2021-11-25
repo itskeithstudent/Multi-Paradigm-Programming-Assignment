@@ -9,9 +9,9 @@ class Product:
         self.price = price
 
     def __repr__(self):
-        prod_repr_str = "- - - - - - - - - - - - - -\n"
-        prod_repr_str += f"PRODUCT NAME: {self.name}\nPRODUCT PRICE: {self.price}\n"
-        prod_repr_str += "- - - - - - - - - - - - - \n"
+        prod_repr_str = "- - - - - - - - - - - - - -\n\n"
+        prod_repr_str += f"PRODUCT NAME: {self.name}\nPRODUCT PRICE: {self.price}\n\n"
+        prod_repr_str += "- - - - - - - - - - - - - \n\n"
         return prod_repr_str
 
 class ProductStock:
@@ -67,16 +67,16 @@ class Customer:
             for row in csv_reader:
                 product = Product(name=row[0], price=0.0) #set product details, customer doesn't know items price so leaving as 0.0 (inflation is very high these days, hard to keep track of price of things!)
                 product_quantity = ProductStock(product=product,quantity=int(row[1])) #set ProductStock item, to be appended to customers shopping list
-                customer.shopping_list.append(product_quantity) #append product_quantity to customer's shopping list
+                self.shopping_list.append(product_quantity) #append product_quantity to customer's shopping list
 
     def __repr__(self):
-        shop_repr_str = "\n|||-----=====Customer  DETAILS=====-----|||\n\n"
-        shop_repr_str += f'Shop balance - {self.cash:.2f}\n'
-        for i in self.stock:
-            shop_repr_str += f"{i.product}\n"
-            shop_repr_str += f"The shop has {i.quantity} of the above\n"
-        shop_repr_str += "\n|||-----=====SHOP DETAILS=====-----|||\n\n"
-        return shop_repr_str
+        cust_repr_str = f"\n|||-----=====CUSTOMER {self.name} ORDER DETAILS=====-----|||\n\n"
+        cust_repr_str += f'Customer budget - {self.budget:.2f}\n'
+        for i in self.shopping_list:
+            cust_repr_str += f"{i.product}"
+            cust_repr_str += f"Customer wants {i.quantity} of the above\n\n"
+        cust_repr_str += f"\n|||-----=====CUSTOMER {self.name} ORDER DETAILS=====-----|||\n\n"
+        return cust_repr_str
 '''
 prod_test = Product(name="Bread", price=1.1)
 print(prod_test)
@@ -85,3 +85,5 @@ print(stock_test)
 '''
 
 shop_test = Shop(csv_path='Shop Stock\\stock.csv')
+cust_test = Customer(csv_path='Customer Orders\\customer_order_a.csv')
+print(cust_test)
