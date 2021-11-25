@@ -85,15 +85,38 @@ def createCustomerOrder(customer_csv):
 
     with open(customer_csv, "r") as csv_file:
         csv_reader = csv.reader(csv_file,delimiter=',')
-        #budget = float(next(csv_reader)[0])
         first_row = next(csv_reader) #customer's name and budget is stored in first row so using next() to grab first line from csv_reader
         customer.name = first_row[0]
-        customer.budget = float(first_row[1]) #set shop's cash
+        customer.budget = float(first_row[1]) #set customer's cash
         for row in csv_reader:
             product = Product(name=row[0], price=0.0) #set product details, customer doesn't know items price so leaving as 0.0 (inflation is very high these days, hard to keep track of price of things!)
-            product_quantity = ProductStock(product=product,quantity=int(row[1])) #set ProductStock item to be appended to customers shopping list
-            customer.shopping_list.append(product_quantity) #append product_stock to shop's stock list
+            product_quantity = ProductStock(product=product,quantity=int(row[1])) #set ProductStock item, to be appended to customers shopping list
+            customer.shopping_list.append(product_quantity) #append product_quantity to customer's shopping list
     return customer
+
+def createLiveCustomerOrder():
+    '''
+        createLiveCustomerOrder - creates a customer dataclass, takes no input arguments, instead inputs from command line
+        parameters:
+        N/A
+        returns:
+        customer dataclass after populating data
+    '''
+    cust = Customer(name="",budget=0,shopping_list=[]) #Initialise Shop dataclass with default values, for cash and stock
+    cust_name = str(input("Please enter your name: "))
+    cust.name = cust_name
+    cust_budget = float(input("Please enter your budget: "))
+    cust.budget = cust_budget
+
+    product_name = str(input("\nEnter name of product or 0 to stop \n"))
+    while(product_name != "0"):
+        quantity = int(input(f"Enter quantity of {product_name} to order \n"))
+        product = Product(name=product_name, price=0.0) #set product details, customer doesn't know items price so leaving as 0.0 (inflation is very high these days, hard to keep track of price of things!)
+        product_quantity = ProductStock(product=product,quantity=quantity) #set ProductStock item to be appended to customers shopping list
+        cust.shopping_list.append(product_quantity) #append product_stock to shop's stock list
+        product_name = str(input("\nEnter name of product or 0 to stop \n"))
+
+    return cust
 
 def check_stock(shop, product_name, product_quantity):
     '''
@@ -137,6 +160,8 @@ def find_price(shop, product_name):
             return product_price
     #in-case nothing found
     print("Product not found in shop stock, please check for any typos and try again.")
+    product_price = 0 #product_price set to 0 if not found, rather than removing item from shopping list
+    return product_price
 
 def update_shop(shop, product_name, quantity_removed):
     '''
@@ -153,10 +178,19 @@ def update_shop(shop, product_name, quantity_removed):
             i.quantity = i.quantity - quantity_removed
 
 def fulfill_order(shop, cust):
+    '''
+        fulfill_order - fullfills customer order against shop, adjusts customer order depending on shop stock
+            customer order success depends on their budget being >= to the order price
+        parameters:
+        shop (dataclass) - dataclass for the shop to fulfill order against
+        cust (dataclass) - dataclass for the customer looking to place an order
+        returns:
+        N/A, shop is updated in-place, customer is also updated in-place (though only it's budget)
+    '''
     order_total = 0.0
     cust_budget = cust.budget
     print("\n___________________________________________________________________\n")
-    print("Hello {cust.name}, I'll now start processing your order!")
+    print(f"Hello {cust.name}, I'll now start processing your order!")
     print("\n===================================================================\n\n")
     for i in cust.shopping_list:
         price = find_price(shop, i.product.name)
@@ -201,6 +235,8 @@ if __name__ == '__main__':
             fulfill_order(shop,customer)
         elif selection == "4":
             print("LIVE ORDER Come back later")
+            customer = createLiveCustomerOrder()
+            fulfill_order(shop,customer)
         elif selection == "5":
             printShop(shop)
 

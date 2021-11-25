@@ -44,7 +44,7 @@ void printCustomer(struct Customer c)
     printf(" - - - - - - - - - - - - - \n");
     //in below for loop had to add index to customer struct to keep track of
     for (int i = 0; i < c.index; i++)
-    {   
+    {
         printProduct(c.shoppingList[i].product);
         printf("\nproduct=%s\n",c.shoppingList[i].product.name);
         printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
@@ -227,7 +227,7 @@ int check_stock(struct Shop * s, char * name, int quantity){
 
 
 //find_price, looks for product name in Shop struct
-//returns orice of product
+//returns price of product
 double find_price(struct Shop * s, char *name)
 {
     for (int i = 0; i < s->index; i++)
@@ -237,6 +237,8 @@ double find_price(struct Shop * s, char *name)
             return s->stock[i].product.price;
         }
     }
+    //in-case product is not in stock, it has price of 0
+    return 0;
 }
 
 //update_shop, looks for product by name and reduces quantity in stock
@@ -332,5 +334,5 @@ int main(void)
             printShop(myShop);
         }
 	}
-	printf("Thank you and goodbye");
+	printf("Bye have a wonderful time!");
 }
