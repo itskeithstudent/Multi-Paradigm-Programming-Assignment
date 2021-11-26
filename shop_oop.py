@@ -45,6 +45,9 @@ class Shop:
                 product_stock = ProductStock(product=product,quantity=int(row[2])) #set product stock details, enforce type of int for quantity
                 self.stock.append(product_stock) #append product_stock to shop's stock list
 
+    def fulfill_order(self, cust):
+        print("FULFILL_ORDER")
+
     def __repr__(self):
         shop_repr_str = "\n|||-----=====SHOP DETAILS=====-----|||\n\n"
         shop_repr_str += f'Shop balance - {self.cash:.2f}\n'
@@ -53,21 +56,42 @@ class Shop:
             shop_repr_str += f"The shop has {i.quantity} of the above\n"
         shop_repr_str += "\n|||-----=====SHOP DETAILS=====-----|||\n\n"
         return shop_repr_str
-    
+
 
 class Customer:
 
     def __init__(self, csv_path=None):
+        #if no csv_path provided, give default values, expect create_live_mode function to later be called
+        if csv_path is None:
+            self.shopping_list = []
+            self.name = ''
+            self.budget = 0
+        #else load in csv and create customer variables
+        else:
+            self.shopping_list = []
+            with open(csv_path, "r") as csv_file:
+                csv_reader = csv.reader(csv_file,delimiter=',')
+                first_row = next(csv_reader) #customer's name and budget is stored in first row so using next() to grab first line from csv_reader
+                self.name = first_row[0]
+                self.budget = float(first_row[1]) #set customer's cash
+                for row in csv_reader:
+                    product = Product(name=row[0], price=0.0) #set product details, customer doesn't know items price so leaving as 0.0 (inflation is very high these days, hard to keep track of price of things!)
+                    product_quantity = ProductStock(product=product,quantity=int(row[1])) #set ProductStock item, to be appended to customers shopping list
+                    self.shopping_list.append(product_quantity) #append product_quantity to customer's shopping list
+
+    def create_live_mode(self):
         self.shopping_list = []
-        with open(csv_path, "r") as csv_file:
-            csv_reader = csv.reader(csv_file,delimiter=',')
-            first_row = next(csv_reader) #customer's name and budget is stored in first row so using next() to grab first line from csv_reader
-            self.name = first_row[0]
-            self.budget = float(first_row[1]) #set customer's cash
-            for row in csv_reader:
-                product = Product(name=row[0], price=0.0) #set product details, customer doesn't know items price so leaving as 0.0 (inflation is very high these days, hard to keep track of price of things!)
-                product_quantity = ProductStock(product=product,quantity=int(row[1])) #set ProductStock item, to be appended to customers shopping list
-                self.shopping_list.append(product_quantity) #append product_quantity to customer's shopping list
+        cust_name = str(input("Please enter your name: "))
+        self.name = cust_name
+        cust_budget = float(input("Please enter your budget: "))
+        self.budget = cust_budget
+        product_name = str(input("\nEnter name of product or 0 to stop \n"))
+        while(product_name != "0"):
+            quantity = int(input(f"Enter quantity of {product_name} to order \n"))
+            product = Product(name=product_name, price=0.0) #set product details, customer doesn't know items price so leaving as 0.0 (inflation is very high these days, hard to keep track of price of things!)
+            product_quantity = ProductStock(product=product,quantity=quantity) #set ProductStock item to be appended to customers shopping list
+            self.shopping_list.append(product_quantity) #append product_stock to shop's stock list
+            product_name = str(input("\nEnter name of product or 0 to stop \n"))
 
     def __repr__(self):
         cust_repr_str = f"\n|||-----=====CUSTOMER {self.name} ORDER DETAILS=====-----|||\n\n"
@@ -87,3 +111,7 @@ print(stock_test)
 shop_test = Shop(csv_path='Shop Stock\\stock.csv')
 cust_test = Customer(csv_path='Customer Orders\\customer_order_a.csv')
 print(cust_test)
+
+cust_test2 = Customer()
+cust_test2.create_live_mode()
+print(cust_test2)
