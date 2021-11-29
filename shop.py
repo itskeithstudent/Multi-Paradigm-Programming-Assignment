@@ -33,9 +33,9 @@ def printProduct(p):
         returns:
         N/A, just prints details from the product dataclass
     '''
-    print("- - - - - - - - - - - - - -\n")
-    print(f"PRODUCT NAME: {p.name}\nPRODUCT PRICE: {p.price}\n")
-    print("- - - - - - - - - - - - - \n")
+    print("- - - - - - - - - - - - - -")
+    print(f"PRODUCT NAME: {p.name}\nPRODUCT PRICE: {p.price}")
+    print("- - - - - - - - - - - - - ")
 
 def printShop(s):
     '''

@@ -9,9 +9,9 @@ class Product:
         self.price = price
 
     def __repr__(self):
-        prod_repr_str = "- - - - - - - - - - - - - -\n\n"
-        prod_repr_str += f"PRODUCT NAME: {self.name}\nPRODUCT PRICE: {self.price}\n\n"
-        prod_repr_str += "- - - - - - - - - - - - - \n\n"
+        prod_repr_str = "- - - - - - - - - - - - - -\n"
+        prod_repr_str += f"PRODUCT NAME: {self.name}\nPRODUCT PRICE: {self.price}\n"
+        prod_repr_str += "- - - - - - - - - - - - - \n"
         return prod_repr_str
 
 class ProductStock:
@@ -48,13 +48,33 @@ class Shop:
     def fulfill_order(self, cust):
         print("FULFILL_ORDER")
 
+    def shop_interface(self):
+        selection = ''
+        while selection != "0":
+            selection = input("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n")
+            if selection == "1":
+                customer = Customer('Customer Orders\\customer_order_a.csv')
+                self.fulfill_order(customer)
+            elif selection == "2":
+                customer = Customer('Customer Orders\\customer_order_b.csv')
+                self.fulfill_order(customer)
+            elif selection == "3":
+                customer = Customer('Customer Orders\\customer_order_c.csv')
+                self.fulfill_order(customer)
+            elif selection == "4":
+                print("LIVE ORDER Come back later")
+                customer = Customer().create_live_mode()
+                self.fulfill_order(customer)
+            elif selection == "5":
+                print(self)
+
     def __repr__(self):
-        shop_repr_str = "\n|||-----=====SHOP DETAILS=====-----|||\n\n"
+        shop_repr_str = "\n|||-----=====SHOP DETAILS=====-----|||\n"
         shop_repr_str += f'Shop balance - {self.cash:.2f}\n'
         for i in self.stock:
-            shop_repr_str += f"{i.product}\n"
-            shop_repr_str += f"The shop has {i.quantity} of the above\n"
-        shop_repr_str += "\n|||-----=====SHOP DETAILS=====-----|||\n\n"
+            shop_repr_str += f"{i.product}"
+            shop_repr_str += f"The shop has {i.quantity} of the above\n\n"
+        shop_repr_str += "|||-----=====SHOP DETAILS=====-----|||\n\n"
         return shop_repr_str
 
 
@@ -113,5 +133,7 @@ cust_test = Customer(csv_path='Customer Orders\\customer_order_a.csv')
 print(cust_test)
 
 cust_test2 = Customer()
-cust_test2.create_live_mode()
-print(cust_test2)
+#cust_test2.create_live_mode()
+#print(cust_test2)
+
+shop_test.shop_interface()
