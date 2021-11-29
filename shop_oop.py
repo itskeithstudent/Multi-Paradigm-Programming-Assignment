@@ -45,8 +45,66 @@ class Shop:
                 product_stock = ProductStock(product=product,quantity=int(row[2])) #set product stock details, enforce type of int for quantity
                 self.stock.append(product_stock) #append product_stock to shop's stock list
 
+    def find_price(self, product_name):
+        for i in self.stock:
+            if i.product.name == product_name:
+                product_price = i.product.price
+                print(product_price)
+                return product_price
+        #in-case nothing found
+        print("Product not found in shop stock, please check for any typos and try again.")
+        product_price = 0 #product_price set to 0 if not found, rather than removing item from shopping list
+        return product_price
+
+    def check_stock(self, product_name, product_quantity):
+        #loop through items in shop stock
+        for i in self.stock:
+            if product_name == i.product.name:
+                print(f"Checking shop stock of {i.product.name}, quantity in stock - {i.quantity}\n")
+                if i.quantity >= product_quantity:
+                    return product_quantity
+                else:
+                    print(f"Updating quantity to match what shop has in stock - {i.quantity}\n")
+                    return i.quantity
+        #if have gone through entire shop stock and no match, then shop doesn't stock item, return 0 for this item
+        print("We don't stock this item.")
+        return 0
+
+    def update_shop(self, product_name, quantity_removed):
+        for i in self.stock:
+            if i.product.name == product_name:
+                i.quantity = i.quantity - quantity_removed
+
     def fulfill_order(self, cust):
-        print("FULFILL_ORDER")
+        order_total = 0.0
+        cust_budget = cust.budget
+        print("\n___________________________________________________________________\n")
+        print(f"Hello {cust.name}, I'll now start processing your order!")
+        print("\n===================================================================\n\n")
+        for i in cust.shopping_list:
+            price = self.find_price(i.product.name)
+            #checked_quantity stores the quantity returned from check_stock, which is either the original quantity requested (if in-stock) or whatever stock the shop has
+            checked_quantity = self.check_stock(i.product.name,i.quantity)
+            print(f"Customer has requested {i.quantity} of {i.product.name}, actual quantity that can be provided {checked_quantity}\n\n")
+            i.quantity = checked_quantity
+            #order_total will be what is subtracted from customer budget and added to shop cash
+            order_total = order_total + (price * checked_quantity)
+        if order_total > cust_budget:
+            print("\n===================================================================\n")
+            print("You don't have enough money, my apologies, please revise your order and try again.")
+            print("\n___________________________________________________________________\n")
+        else:
+            #Now Loop back through customer order and update the shop inventory as order is determined to be fulfillable
+            print("\n===================================================================\n")
+            print(f"Thank you for your custom, that will be {order_total:.2f} total please.")
+            print("\n___________________________________________________________________\n")
+            #loop through customer shopping_list, update shop stock quantities
+            for i in cust.shopping_list:
+                self.update_shop(i.product.name,i.quantity)
+            #add order_total to shop's cash
+            self.cash += order_total
+            #remove order_total from customers budget
+            cust.budget -= order_total
 
     def shop_interface(self):
         selection = ''
