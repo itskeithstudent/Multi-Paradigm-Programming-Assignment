@@ -14,11 +14,13 @@ class ProductStock:
     product:Product
     quantity:int
 
+# DataClass for shop, stores shop's cash and a list of items in stock
 @dataclass
 class Shop:
     cash:float
     stock:List[ProductStock]
 
+# DataClass for customer, similar to shop but takes a name, budget instead of cash and a shopping list (same as shop stock, but won't hold price)
 @dataclass
 class Customer:
     name:str
@@ -46,12 +48,12 @@ def printShop(s):
         N/A, just prints details from the shop dataclass.
         Calls on printProduct function for each product in stock.
     '''
-    print("\n|||-----=====SHOP DETAILS=====-----|||\n\n")
+    print("\n|||-----=====SHOP DETAILS=====-----|||\n")
     print(f"Shop balance - {s.cash:.2f}\n")
     for i in s.stock:
         printProduct(i.product)
         print(f"The shop has {i.quantity} of the above\n")
-    print("\n|||-----=====SHOP DETAILS=====-----|||\n\n")
+    print("|||-----=====SHOP DETAILS=====-----|||\n")
 
 def createAndStockShop(shop_csv):
     '''
@@ -133,11 +135,11 @@ def check_stock(shop, product_name, product_quantity):
     #loop through items in shop stock
     for i in shop.stock:
         if product_name == i.product.name:
-            print(f"Checking shop stock of {i.product.name}, quantity in stock - {i.quantity}\n")
+            print(f"Checking shop stock of {i.product.name}, quantity in stock - {i.quantity}")
             if i.quantity >= product_quantity:
                 return product_quantity
             else:
-                print(f"Updating quantity to match what shop has in stock - {i.quantity}\n")
+                print(f"Updating quantity to match what shop has in stock - {i.quantity}")
                 return i.quantity
     #if have gone through entire shop stock and no match, then shop doesn't stock item, return 0 for this item
     print("We don't stock this item.")
@@ -152,11 +154,9 @@ def find_price(shop, product_name):
         returns:
         price of the requested product
     '''
-    print(product_name)
     for i in shop.stock:
         if i.product.name == product_name:
             product_price = i.product.price
-            print(product_price)
             return product_price
     #in-case nothing found
     print("Product not found in shop stock, please check for any typos and try again.")
@@ -189,26 +189,26 @@ def fulfill_order(shop, cust):
     '''
     order_total = 0.0
     cust_budget = cust.budget
-    print("\n___________________________________________________________________\n")
+    print("\n___________________________________________________________________")
     print(f"Hello {cust.name}, I'll now start processing your order!")
-    print("\n===================================================================\n\n")
+    print("===================================================================\n")
     for i in cust.shopping_list:
         price = find_price(shop, i.product.name)
         #checked_quantity stores the quantity returned from check_stock, which is either the original quantity requested (if in-stock) or whatever stock the shop has
         checked_quantity = check_stock(shop,i.product.name,i.quantity)
-        print(f"Customer has requested {i.quantity} of {i.product.name}, actual quantity that can be provided {checked_quantity}\n\n")
+        print(f"Customer has requested {i.quantity} of {i.product.name}, actual quantity that can be provided {checked_quantity}\n")
         i.quantity = checked_quantity
         #order_total will be what is subtracted from customer budget and added to shop cash
         order_total = order_total + (price * checked_quantity)
     if order_total > cust_budget:
-        print("\n===================================================================\n")
+        print("\n===================================================================")
         print("You don't have enough money, my apologies, please revise your order and try again.")
-        print("\n___________________________________________________________________\n")
+        print("___________________________________________________________________\n")
     else:
         #Now Loop back through customer order and update the shop inventory as order is determined to be fulfillable
-        print("\n===================================================================\n")
+        print("\n===================================================================")
         print(f"Thank you for your custom, that will be {order_total:.2f} total please.")
-        print("\n___________________________________________________________________\n")
+        print("___________________________________________________________________\n")
         #loop through customer shopping_list, update shop stock quantities
         for i in cust.shopping_list:
             update_shop(shop,i.product.name,i.quantity)
@@ -218,20 +218,20 @@ def fulfill_order(shop, cust):
         cust.budget -= order_total
 
 if __name__ == '__main__':
-    shop = createAndStockShop('Shop Stock\\stock.csv')
-    #printShop(shop)
-    #print("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n")
+    #set up shop variable to start
+    shop = createAndStockShop('..\\Shop Stock\\stock.csv')
     selection = ''
+    #take in inputs from user in command line to interact with shop
     while selection != "0":
         selection = input("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n")
         if selection == "1":
-            customer = createCustomerOrder('Customer Orders\\customer_order_a.csv')
+            customer = createCustomerOrder('..\\Customer Orders\\customer_order_a.csv')
             fulfill_order(shop,customer)
         elif selection == "2":
-            customer = createCustomerOrder('Customer Orders\\customer_order_b.csv')
+            customer = createCustomerOrder('..\\Customer Orders\\customer_order_b.csv')
             fulfill_order(shop,customer)
         elif selection == "3":
-            customer = createCustomerOrder('Customer Orders\\customer_order_c.csv')
+            customer = createCustomerOrder('..\\Customer Orders\\customer_order_c.csv')
             fulfill_order(shop,customer)
         elif selection == "4":
             print("LIVE ORDER Come back later")
@@ -239,5 +239,5 @@ if __name__ == '__main__':
             fulfill_order(shop,customer)
         elif selection == "5":
             printShop(shop)
-
+    #print exit message after entering "0"
     print("Bye have a wonderful time!")

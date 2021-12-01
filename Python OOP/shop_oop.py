@@ -49,7 +49,6 @@ class Shop:
         for i in self.stock:
             if i.product.name == product_name:
                 product_price = i.product.price
-                print(product_price)
                 return product_price
         #in-case nothing found
         print("Product not found in shop stock, please check for any typos and try again.")
@@ -60,11 +59,11 @@ class Shop:
         #loop through items in shop stock
         for i in self.stock:
             if product_name == i.product.name:
-                print(f"Checking shop stock of {i.product.name}, quantity in stock - {i.quantity}\n")
+                print(f"Checking shop stock of {i.product.name}, quantity in stock - {i.quantity}")
                 if i.quantity >= product_quantity:
                     return product_quantity
                 else:
-                    print(f"Updating quantity to match what shop has in stock - {i.quantity}\n")
+                    print(f"Updating quantity to match what shop has in stock - {i.quantity}")
                     return i.quantity
         #if have gone through entire shop stock and no match, then shop doesn't stock item, return 0 for this item
         print("We don't stock this item.")
@@ -78,26 +77,26 @@ class Shop:
     def fulfill_order(self, cust):
         order_total = 0.0
         cust_budget = cust.budget
-        print("\n___________________________________________________________________\n")
+        print("___________________________________________________________________")
         print(f"Hello {cust.name}, I'll now start processing your order!")
-        print("\n===================================================================\n\n")
+        print("===================================================================\n")
         for i in cust.shopping_list:
             price = self.find_price(i.product.name)
             #checked_quantity stores the quantity returned from check_stock, which is either the original quantity requested (if in-stock) or whatever stock the shop has
             checked_quantity = self.check_stock(i.product.name,i.quantity)
-            print(f"Customer has requested {i.quantity} of {i.product.name}, actual quantity that can be provided {checked_quantity}\n\n")
+            print(f"Customer has requested {i.quantity} of {i.product.name}, actual quantity that can be provided {checked_quantity}\n")
             i.quantity = checked_quantity
             #order_total will be what is subtracted from customer budget and added to shop cash
             order_total = order_total + (price * checked_quantity)
         if order_total > cust_budget:
-            print("\n===================================================================\n")
+            print("===================================================================")
             print("You don't have enough money, my apologies, please revise your order and try again.")
-            print("\n___________________________________________________________________\n")
+            print("___________________________________________________________________")
         else:
             #Now Loop back through customer order and update the shop inventory as order is determined to be fulfillable
-            print("\n===================================================================\n")
+            print("===================================================================")
             print(f"Thank you for your custom, that will be {order_total:.2f} total please.")
-            print("\n___________________________________________________________________\n")
+            print("___________________________________________________________________")
             #loop through customer shopping_list, update shop stock quantities
             for i in cust.shopping_list:
                 self.update_shop(i.product.name,i.quantity)
@@ -108,23 +107,27 @@ class Shop:
 
     def shop_interface(self):
         selection = ''
+        #command line menu for interacting with shop
         while selection != "0":
             selection = input("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n")
             if selection == "1":
-                customer = Customer('Customer Orders\\customer_order_a.csv')
+                customer = Customer('..\\Customer Orders\\customer_order_a.csv')
                 self.fulfill_order(customer)
             elif selection == "2":
-                customer = Customer('Customer Orders\\customer_order_b.csv')
+                customer = Customer('..\\Customer Orders\\customer_order_b.csv')
                 self.fulfill_order(customer)
             elif selection == "3":
-                customer = Customer('Customer Orders\\customer_order_c.csv')
+                customer = Customer('..\\Customer Orders\\customer_order_c.csv')
                 self.fulfill_order(customer)
             elif selection == "4":
-                print("LIVE ORDER Come back later")
-                customer = Customer().create_live_mode()
+                customer = Customer()
+                customer.create_live_mode()
                 self.fulfill_order(customer)
             elif selection == "5":
+                #takes advantage of shop class __repr__ function to show shop details
                 print(self)
+        #print exit shop message
+        print("Bye have a wonderful time!")
 
     def __repr__(self):
         shop_repr_str = "\n|||-----=====SHOP DETAILS=====-----|||\n"
@@ -132,7 +135,7 @@ class Shop:
         for i in self.stock:
             shop_repr_str += f"{i.product}"
             shop_repr_str += f"The shop has {i.quantity} of the above\n\n"
-        shop_repr_str += "|||-----=====SHOP DETAILS=====-----|||\n\n"
+        shop_repr_str += "|||-----=====SHOP DETAILS=====-----|||\n"
         return shop_repr_str
 
 
@@ -162,6 +165,7 @@ class Customer:
         cust_name = str(input("Please enter your name: "))
         self.name = cust_name
         cust_budget = float(input("Please enter your budget: "))
+        print(cust_budget)
         self.budget = cust_budget
         product_name = str(input("\nEnter name of product or 0 to stop \n"))
         while(product_name != "0"):
@@ -179,19 +183,8 @@ class Customer:
             cust_repr_str += f"Customer wants {i.quantity} of the above\n\n"
         cust_repr_str += f"\n|||-----=====CUSTOMER {self.name} ORDER DETAILS=====-----|||\n\n"
         return cust_repr_str
-'''
-prod_test = Product(name="Bread", price=1.1)
-print(prod_test)
-stock_test = ProductStock(product=prod_test, quantity=10)
-print(stock_test)
-'''
 
-shop_test = Shop(csv_path='Shop Stock\\stock.csv')
-cust_test = Customer(csv_path='Customer Orders\\customer_order_a.csv')
-print(cust_test)
+shop = Shop(csv_path='..\\Shop Stock\\stock.csv')
 
-cust_test2 = Customer()
-#cust_test2.create_live_mode()
-#print(cust_test2)
+shop.shop_interface()
 
-shop_test.shop_interface()

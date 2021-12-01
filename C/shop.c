@@ -15,6 +15,7 @@ struct ProductStock
     int quantity;
 };
 
+//Struct for shop, stores cash shop has, what shop has in stock and index to keep track of number of items in stock
 struct Shop
 {
     double cash;
@@ -22,6 +23,7 @@ struct Shop
     int index;
 };
 
+//Struct for customer, stores customer name what budget customer has, a shopping list and number of items in shopping list
 struct Customer
 {
     char *name;
@@ -30,6 +32,7 @@ struct Customer
     int index;
 };
 
+//function for printing a product with specific formatting
 void printProduct(struct Product p)
 {
     printf("- - - - - - - - - - - - - -\n");
@@ -37,22 +40,7 @@ void printProduct(struct Product p)
     printf(" - - - - - - - - - - - - - \n");
 };
 
-void printCustomer(struct Customer c)
-{
-    printf("- - - - - - - - - - - - - -\n");
-    printf("CUSTOMER NAME: %s \nCUSTOMER BUDGET: %.2f \n", c.name, c.budget);
-    printf(" - - - - - - - - - - - - - \n");
-    //in below for loop had to add index to customer struct to keep track of
-    for (int i = 0; i < c.index; i++)
-    {
-        printProduct(c.shoppingList[i].product);
-        printf("\nproduct=%s\n",c.shoppingList[i].product.name);
-        printf("%s ORDERS %d OF ABOVE PRODUCT\n", c.name, c.shoppingList[i].quantity);
-        double cost = c.shoppingList[i].product.price * c.shoppingList[i].quantity;
-        printf("The cost to %s will be %.2f\n", c.name, cost);
-    };
-}
-
+//function for creating a customer struct using a csv as input
 struct Customer createCustomerOrder(char *file_loc)
 {
     struct Customer cust;
@@ -81,21 +69,24 @@ struct Customer createCustomerOrder(char *file_loc)
     double total = atof(t); //convert string to double
     cust.budget = total;
 
+    //parse rest of csv file
     while ((read = getline(&line, &len, fp)) != -1)
     {
         char *n = strtok(line, ",");
         char *q = strtok(NULL, ",");
         char *name = malloc(sizeof(char) * 50);
+        //copy product name string value from n into name
         strcpy(name, n);
-        int quantity = atoi(q);
+        int quantity = atoi(q); //conver q to int
 
-        struct Product productDetail = {name, 0.0};
-        struct ProductStock stockItem = {productDetail, quantity};
-        cust.shoppingList[cust.index++] = stockItem;
+        struct Product productDetail = {name, 0.0}; //create product struct for current product, defaulting price to 0.0
+        struct ProductStock stockItem = {productDetail, quantity}; //add productDetail to ProductStock struct along with quantity customer wants
+        cust.shoppingList[cust.index++] = stockItem; //append stockItem to shoppingList
     };
     return cust;
 }
 
+//function for creating a customer order in 'live' mode
 struct Customer createLiveCustomerOrder()
 {
     struct Customer cust;
@@ -152,6 +143,7 @@ struct Customer createLiveCustomerOrder()
     return cust;
 }
 
+//function for creating and populating a shop Struct
 struct Shop createAndStockShop()
 {
     struct Shop shop = {200};
@@ -159,7 +151,7 @@ struct Shop createAndStockShop()
     char *line = NULL;
     size_t len = 0;
     size_t read;
-    fp = fopen("Shop Stock\\stock.csv", "r");
+    fp = fopen("..\\Shop Stock\\stock.csv", "r");
     if (fp == NULL)
     {
         printf("file not found");
@@ -190,6 +182,7 @@ struct Shop createAndStockShop()
     return shop;
 };
 
+//function for printing out shop details, loops through the shop stock printing details for each product
 void printShop(struct Shop s)
 {
     printf("\n|||-----=====SHOP DETAILS=====-----|||\n\n");
@@ -317,13 +310,13 @@ int main(void)
         getchar();
 		if (choice == 1)
 		{
-            struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_a.csv");
+            struct Customer custom_order = createCustomerOrder("..\\Customer Orders\\customer_order_a.csv");
             fulfill_order(&myShop,&custom_order);
 		} else if (choice == 2){
-            struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_b.csv");
+            struct Customer custom_order = createCustomerOrder("..\\Customer Orders\\customer_order_b.csv");
             fulfill_order(&myShop,&custom_order);
 		} else if (choice == 3){
-            struct Customer custom_order = createCustomerOrder("Customer Orders\\customer_order_c.csv");
+            struct Customer custom_order = createCustomerOrder("..\\Customer Orders\\customer_order_c.csv");
             fulfill_order(&myShop,&custom_order);
 		}  else if (choice == 4){
             struct Customer custom_order = createLiveCustomerOrder();
