@@ -3,7 +3,16 @@ from typing import List
 import csv
 
 class Product:
+    '''
+    Creates object for holding product details, name of product and its price
 
+    Attributes:
+        name : str
+        price : float
+
+    Function:
+        N/A
+    '''
     def __init__(self, name, price=0):
         self.name = name
         self.price = price
@@ -15,7 +24,18 @@ class Product:
         return prod_repr_str
 
 class ProductStock:
+    '''
+    Creates object for holding stock of a product details, name of product and its price
 
+    Attributes:
+        product : class Product
+        quantity : int
+
+    Function:
+        name - returns name of the Product object
+        price - returns price of the Product object
+        cost - returns price of the Product object multiplied by the quantity attribute
+    '''
     def __init__(self, product, quantity):
         self.product = product
         self.quantity = quantity
@@ -33,6 +53,23 @@ class ProductStock:
         return f"{self.product} PRODUCT QUANTITY: {self.quantity}"
 
 class Shop:
+    '''
+    Creates a object for holding shop details and allows customer interaction, which updates state of object.
+
+    Attributes:
+        stock : list
+        cash : float
+
+    Functions:
+        find_price - get's price of a product if finds its name retruns price, otherwise returns 0
+        check_stock - checks if requested quantity can be met, if it can returns requested quantity, otherwise returns max quantity in stock
+        update_stock - updates quantity of product in shop stock, returns nothing but will change quantity value in shop stock item
+        fulfill_order - fulfill's a customer order, taking in a customer object and checking if their requested products and quantities can be 
+            met and whether they have enough budget to pay for the order, if so then shop's product stock quantities get updated and shop's cash
+            increases.
+        shop_interface - presents command line interface for interacting with shop, selecting different types of order including a live mode, 
+            and a print out of current state of shop
+    '''
 
     def __init__(self, csv_path):
         self.stock = []
@@ -46,9 +83,16 @@ class Shop:
                 self.stock.append(product_stock) #append product_stock to shop's stock list
 
     def find_price(self, product_name):
+        '''
+        find_price - checks self for a product and returns the price of it if it has that product in stock
+        parameters:
+        product_name (string) - name of the product to be checked
+        returns:
+        price of the requested product
+        '''
         for i in self.stock:
-            if i.product.name == product_name:
-                product_price = i.product.price
+            if i.name() == product_name:
+                product_price = i.price()
                 return product_price
         #in-case nothing found
         print("Product not found in shop stock, please check for any typos and try again.")
@@ -56,9 +100,19 @@ class Shop:
         return product_price
 
     def check_stock(self, product_name, product_quantity):
+        '''
+        check_stock - checks self for a product and the quantity it has in stock of that product
+        parameters:
+        product_name (string) - name of the product to be checked
+        product_quantity (int) - quantity of the product being sought
+        returns:
+        requested quantity if self has enough stock
+        maximum quantity in self if it doesn't have enough stock
+        0 otherwise
+        '''
         #loop through items in shop stock
         for i in self.stock:
-            if product_name == i.product.name:
+            if product_name == i.name():
                 print(f"Checking shop stock of {i.product.name}, quantity in stock - {i.quantity}")
                 if i.quantity >= product_quantity:
                     return product_quantity
@@ -70,21 +124,37 @@ class Shop:
         return 0
 
     def update_shop(self, product_name, quantity_removed):
+        '''
+        update_shop - updates the quantity of a product in self
+        parameters:
+        product_name (string) - name of the product who's quantity is to be updated
+        quantity_removed (int) - quantity of the product being updated in shop
+        returns:
+        N/A, shop is updated in-place
+        '''
         for i in self.stock:
-            if i.product.name == product_name:
+            if i.name() == product_name:
                 i.quantity = i.quantity - quantity_removed
 
     def fulfill_order(self, cust):
+        '''
+        fulfill_order - fullfills customer order against self, adjusts customer order depending on self stock
+            customer order success depends on their budget being >= to the order price
+        parameters:
+        cust (class Customer) - customer object looking to place an order
+        returns:
+        N/A, self is updated but nothing returned
+        '''
         order_total = 0.0
         cust_budget = cust.budget
         print("___________________________________________________________________")
         print(f"Hello {cust.name}, I'll now start processing your order!")
         print("===================================================================\n")
         for i in cust.shopping_list:
-            price = self.find_price(i.product.name)
+            price = self.find_price(i.name())
             #checked_quantity stores the quantity returned from check_stock, which is either the original quantity requested (if in-stock) or whatever stock the shop has
-            checked_quantity = self.check_stock(i.product.name,i.quantity)
-            print(f"Customer has requested {i.quantity} of {i.product.name}, actual quantity that can be provided {checked_quantity}\n")
+            checked_quantity = self.check_stock(i.name(),i.quantity)
+            print(f"Customer has requested {i.quantity} of {i.name()}, actual quantity that can be provided {checked_quantity}\n")
             i.quantity = checked_quantity
             #order_total will be what is subtracted from customer budget and added to shop cash
             order_total = order_total + (price * checked_quantity)
@@ -99,13 +169,17 @@ class Shop:
             print("___________________________________________________________________")
             #loop through customer shopping_list, update shop stock quantities
             for i in cust.shopping_list:
-                self.update_shop(i.product.name,i.quantity)
+                self.update_shop(i.name(),i.quantity)
             #add order_total to shop's cash
             self.cash += order_total
             #remove order_total from customers budget
             cust.budget -= order_total
 
     def shop_interface(self):
+        '''
+        shop_interface - displays the options for interacting with the shop (e.g. self)
+        takes in no parameters and returns nothing, but calls funtions depending on input which change state of shop (self)
+        '''
         selection = ''
         #command line menu for interacting with shop
         while selection != "0":
@@ -140,8 +214,23 @@ class Shop:
 
 
 class Customer:
+    '''
+    Creates a object for holding customer details to order against a shop object with.
 
+    Attributes:
+        shopping_list : list
+        name: str
+        budget: float
+
+    Functions:
+        create_live_mode - generate a series of prompts to get customer details from command line terminal instead of csv file,
+            returns nothing as updaets Customer class attributes
+    '''
     def __init__(self, csv_path=None):
+        '''
+        __init__ takes in optional argument for csv_path, if nothing supplied, created blank customer object, expect to use create_live_mode function
+            to update details, otherwise it get's a csv file which it reads for customer details.
+        '''
         #if no csv_path provided, give default values, expect create_live_mode function to later be called
         if csv_path is None:
             self.shopping_list = []
@@ -161,6 +250,13 @@ class Customer:
                     self.shopping_list.append(product_quantity) #append product_quantity to customer's shopping list
 
     def create_live_mode(self):
+        '''
+        create_live_mode - populates self attributes, assumes no csv loaded in at initializing this class, however will work regardless
+        parameters:
+        N/A - operates on self
+        returns:
+        N/A - updates state of the object, so doesn't need to return anything
+        '''
         self.shopping_list = []
         cust_name = str(input("Please enter your name: "))
         self.name = cust_name
@@ -184,7 +280,8 @@ class Customer:
         cust_repr_str += f"\n|||-----=====CUSTOMER {self.name} ORDER DETAILS=====-----|||\n\n"
         return cust_repr_str
 
+#load in shop
 shop = Shop(csv_path='..\\Shop Stock\\stock.csv')
-
+#start interacting with shop
 shop.shop_interface()
 
