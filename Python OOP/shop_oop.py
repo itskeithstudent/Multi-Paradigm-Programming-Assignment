@@ -280,8 +280,9 @@ class Customer:
         cust_repr_str += f"\n|||-----=====CUSTOMER {self.name} ORDER DETAILS=====-----|||\n\n"
         return cust_repr_str
 
-#load in shop
-shop = Shop(csv_path='..\\Shop Stock\\stock.csv')
-#start interacting with shop
-shop.shop_interface()
 
+if __name__ == '__main__':
+    #load in shop
+    shop = Shop(csv_path='..\\Shop Stock\\stock.csv')
+    #start interacting with shop
+    shop.shop_interface()

@@ -234,7 +234,6 @@ if __name__ == '__main__':
             customer = createCustomerOrder('..\\Customer Orders\\customer_order_c.csv')
             fulfill_order(shop,customer)
         elif selection == "4":
-            print("LIVE ORDER Come back later")
             customer = createLiveCustomerOrder()
             fulfill_order(shop,customer)
         elif selection == "5":
