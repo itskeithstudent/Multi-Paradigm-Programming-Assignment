@@ -204,12 +204,12 @@ class Shop:
         print("Bye have a wonderful time!")
 
     def __repr__(self):
-        shop_repr_str = "\n|||-----=====SHOP DETAILS=====-----|||\n"
-        shop_repr_str += f'Shop balance - {self.cash:.2f}\n'
+        shop_repr_str = "\n|||-----=====SHOP DETAILS=====-----|||\n\n"
+        shop_repr_str += f'Shop balance - {self.cash:.2f}\n\n'
         for i in self.stock:
             shop_repr_str += f"{i.product}"
-            shop_repr_str += f"The shop has {i.quantity} of the above\n\n"
-        shop_repr_str += "|||-----=====SHOP DETAILS=====-----|||\n"
+            shop_repr_str += f"The shop has {i.quantity} of the above\n"
+        shop_repr_str += "\n|||-----=====SHOP DETAILS=====-----|||\n"
         return shop_repr_str
 
 

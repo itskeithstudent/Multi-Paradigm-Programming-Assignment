@@ -302,7 +302,6 @@ int main(void)
     struct Shop myShop = createAndStockShop();
 
     int choice = -1;
-    printShop(myShop);
 
 	while (choice != 0){
 		printf("\nPlease choose an option:\n(1) Normal customer order\n(2) Customer order with not enough money\n(3) Customer order with excess quantity\n(4) Live Order\n(5) Check shop stock and balance\n(0) Exit Shop\n");

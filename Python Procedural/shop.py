@@ -52,8 +52,8 @@ def printShop(s):
     print(f"Shop balance - {s.cash:.2f}\n")
     for i in s.stock:
         printProduct(i.product)
-        print(f"The shop has {i.quantity} of the above\n")
-    print("|||-----=====SHOP DETAILS=====-----|||\n")
+        print(f"The shop has {i.quantity} of the above")
+    print("\n|||-----=====SHOP DETAILS=====-----|||\n")
 
 def createAndStockShop(shop_csv):
     '''
