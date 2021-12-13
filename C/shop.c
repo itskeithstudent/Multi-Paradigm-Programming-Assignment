@@ -323,7 +323,6 @@ int main(void)
             fulfill_order(&myShop,&custom_order);
         }
         else if (choice == 5){
-            printf("Back at shop");
             printShop(myShop);
         }
 	}
